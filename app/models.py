@@ -167,5 +167,13 @@ class Notification(db.Model):
 	sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 	ticket_id = db.Column(db.Integer, db.ForeignKey('tickets.id'), nullable=False)
+	seen = db.Column(db.Boolean, default=False, nullable=False)
 
 	created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+
+	def __init__(self, message, receiver_id, sender_id, ticket_id, seen):
+		self.message = message
+		self.receiver_id = receiver_id
+		self.sender_id = sender_id
+		self.ticket_id = ticket_id
+		self.seen = seen

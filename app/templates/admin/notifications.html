@@ -22,16 +22,19 @@
             </tr>
         </thead>
         <tbody>
-            {% for row in notifications %}
+            {% for row in my_notifications %}
             <tr>
                 <td>
+                    {% if row.seen == 0 %}
+                        <span class="indicator mr-1"></span>
+                    {% endif %}
                     {% if row.sender.id == current_user.id %}
                         [You] {{ row.sender.name }}
                     {% else %}
                         {{ row.sender.name }}
                     {% endif %}
                     {{ row.message }}
-                    <a href="{{ url_for('admin.view_ticket', id=row.ticket_notification.id) }}">
+                    <a href="{{ url_for('admin.read_notification', tid=row.ticket_notification.id, nid=row.id) }}">
                         #{{ row.ticket_notification.number }}
                     </a>
                 </td>
