@@ -1,0 +1,146 @@
+{% from 'macros/render_input.html' import render_input %}
+{% from 'macros/render_select.html' import render_select %}
+{% from 'macros/render_upload.html' import render_upload %}
+
+{% extends 'layouts/dashboard.base.html' %}
+{% block style %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/datatables/css/datatables.bootstrap4.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/froala-editor/css/froala_editor.pkgd.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/froala-editor/css/froala_style.min.css') }}">
+{% endblock %}
+
+{% block header %}
+    {% block title %}New Tickets{% endblock %}
+{% endblock %}
+{% block text %}
+    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+{% endblock %}
+
+{% block button %}
+    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#createModal">
+        Create New
+    </button>
+{% endblock %}
+{% block content %}
+
+<div class="max-w-1000">
+    {% include 'includes/alert.html' %}
+</div>
+
+<div class="content-box mb-3 content-lighten max-w-1000">
+    <table id="ticketTable" class="table table-striped table-borderless table-responsive-sm">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Subject</th>
+                <th>Author</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Date Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in tickets %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('admin.view_ticket', id=row.id) }}" title="View full details">
+                        {{ row.number }}
+                    </a>
+                </td>
+                <td>
+                    {% if row.subject|length > 64 %}
+                        {{ row.subject[:64-3] + '...' }}
+                    {% else %}
+                        {{ row.subject }}
+                    {% endif %}
+                </td>
+                <td>{{ row.author.name }}</td>
+                <td>{{ row.priority.priority }}</td>
+                <td>{{ row.status.status }}</td>
+                <td>{{ row.created_at.strftime('%m-%d-%Y, %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Create New</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('admin.new_tickets') }}" method="POST" enctype="multipart/form-data">
+                    {{ form.csrf_token }}
+                    <div class="form-group">
+                        {{ render_input(form.subject, "Subject", "Subject is required") }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_select(form.category, "Category is required") }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_input(form.body, "Write a message...", "Message is required", rows="5") }}
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Only files with the following extensions will be allowed (PDF, DOCX, JPEG, JPG, PNG, GIF) and a maximun file size of 4 MB.</small>
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="custom-file">
+                            {{ render_upload(form.attachment) }}
+                            <label class="custom-file-label" for="attachment">Choose file</label>
+                        </div>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="">Upload</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+{{ super() }}
+<script src="{{ url_for('static', filename='vendor/datatables/js/jquery.datatables.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/datatables/js/datatables.bootstrap4.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/froala-editor/js/froala_editor.pkgd.min.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        new FroalaEditor('textarea#body', {
+            toolbarButtons: ['fontFamily', '|', 'bold', 'italic', 'underline', 'undo', 'redo', 'codeView'],
+            fontFamilySelection: true,
+            pluginsEnabled: ['fontFamily']
+        });
+
+        $('#attachment').on('change', function() {
+            var fileName = $(this).val();
+            $(this).next('.custom-file-label').html(fileName);
+        });
+
+        $('#ticketTable').DataTable({'ordering': false});
+
+        maxFileSize = 4 * 1024 * 1024
+        $('#attachment').change(function() {
+            // File size validation
+            fileSize = this.files[0].size;
+            if(fileSize > maxFileSize) {
+                this.setCustomValidity('Maximum file size exceeded');
+                this.reportValidity();
+            }
+            // File extension validation
+            var ext = $(this).val().split('.').pop().toLowerCase();
+            if($.inArray(ext, ['pdf', 'docx', 'png', 'jpg', 'jpeg', 'gif']) == -1) {
+                this.setCustomValidity('This file extension is not allowed');
+                this.reportValidity();
+            }
+        });
+    });
+</script>
+{% endblock %}

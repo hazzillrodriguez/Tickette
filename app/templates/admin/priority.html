@@ -1,0 +1,146 @@
+{% from 'macros/render_input.html' import render_input %}
+
+{% extends 'layouts/dashboard.base.html' %}
+{% block style %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/datatables/css/datatables.bootstrap4.min.css') }}">
+{% endblock %}
+
+{% block header %}
+    {% block title %}Priorities{% endblock %}
+{% endblock %}
+{% block text %}
+    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+{% endblock %}
+
+{% block button %}
+    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#createModal">
+        Create New
+    </button>
+{% endblock %}
+{% block content %}
+
+<div class="max-w-1000">
+    {% include 'includes/alert.html' %}
+</div>
+
+<!-- Priority Table -->
+<div class="content-box mb-3 content-lighten max-w-1000">
+    <table id="priorityTable" class="table table-striped table-borderless table-responsive-sm">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Priority</th>
+                <th>Date Created</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in priorities %}
+            <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.priority }}</td>
+                <td>{{ row.created_at.strftime('%m-%d-%Y, %H:%M') }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm"
+                    {% if row.id < 5 %}
+                        disabled
+                    {% else %}
+                        data-toggle="modal" data-target="#updateModal{{ row.id }}"
+                    {% endif %}>
+                        <i class="fa fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm"
+                    {% if row.id < 5 %}
+                        disabled
+                    {% else %}
+                        data-toggle="modal" data-target="#deleteModal{{ row.id }}"
+                    {% endif %}>
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            <!-- Update Modal -->
+            <div class="modal fade" id="updateModal{{ row.id }}" tabindex="-1" aria-labelledby="updateModalLabel{{ row.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateModalLabel{{ row.id }}">Update Priority</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ url_for('admin.update_priority', id=row.id) }}" method="POST">
+                                {{ form.csrf_token }}
+                                <div class="form-group">
+                                    {{ render_input(form.priority, "Priority", "Priority is required", value=row.priority) }}
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal{{ row.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ row.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel{{ row.id }}">Delete Confirmation</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this priority? This action cannot be undone.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <form action="{{ url_for('admin.delete_priority', id=row.id) }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="submit" class="btn btn-danger" value="Delete">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Create New</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('admin.priority') }}" method="POST">
+                    {{ form.csrf_token }}
+                    <div class="form-group">
+                        {{ render_input(form.priority, "Priority", "Priority is required") }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+{{ super() }}
+<script src="{{ url_for('static', filename='vendor/datatables/js/jquery.datatables.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/datatables/js/datatables.bootstrap4.min.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        $('#priorityTable').DataTable({'ordering': false});
+    });
+</script>
+{% endblock %}

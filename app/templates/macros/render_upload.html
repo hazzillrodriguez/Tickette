@@ -1,0 +1,10 @@
+{% macro render_upload(field) %}
+    {% if field.errors %}
+        {{ field(class="custom-file-input is-invalid") }}
+        <div class="invalid-tooltip">
+            {{ error }}
+        </div>
+    {% else %}
+        {{ field(class="custom-file-input") }}
+    {% endif %}
+{% endmacro %}

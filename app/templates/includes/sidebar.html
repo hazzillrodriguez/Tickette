@@ -1,0 +1,49 @@
+<div class="sidebar sidebar-lighten">
+    <!-- Sidebar Menu -->
+    <div class="sidebar-menu">
+        <!-- Menu -->
+        <ul class="list list-unstyled list-scrollbar">
+            <!-- Multi-level Dropdown Menu -->
+            <li class="list-item">
+                <p class="list-title text-uppercase">Dashboard</p>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('admin.dashboard') }}" class="list-link"><span class="list-icon"><i class="fa fa-home" aria-hidden="true"></i></span>Home</a></li>
+                    <li><a href="javascript:void(0)" class="list-link link-arrow link-current"><span class="list-icon"><i class="fa fa-cog" aria-hidden="true"></i></span>Customer Support</a>
+                        <ul class="list-unstyled list-hidden">
+                            <li><a href="{{ url_for('admin.new_tickets') }}" class="list-link">New Tickets</a></li>
+                            <li><a href="{{ url_for('admin.my_tickets') }}" class="list-link">My Tickets</a></li>
+                            <li><a href="javascript:void(0)" class="list-link link-arrow link-current">General</a>
+                                <ul class="list-unstyled list-hidden">
+                                    <li><a href="{{ url_for('admin.category') }}" class="list-link">Categories</a></li>
+                                    <li><a href="{{ url_for('admin.priority') }}" class="list-link">Priorities</a></li>
+                                    <li><a href="{{ url_for('admin.status') }}" class="list-link">Statuses</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Notifications -->
+                    <li>
+                        <a href="{{ url_for('admin.notifications') }}" class="list-link clearfix">
+                            <div class="float-left">
+                                <span class="list-icon">
+                                    <i class="fa fa-bell" aria-hidden="true"></i>
+                                </span>Notifications
+                            </div>
+                            <div class="float-right">
+                                <span class="badge badge-pill badge-primary">{{ notifications|length }}</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Simple Menu -->
+            <li class="list-item">
+                <p class="list-title text-uppercase">User Management</p>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('admin.create_account') }}" class="list-link"><span class="list-icon"><i class="fa fa-user" aria-hidden="true"></i></span>Create an account</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>

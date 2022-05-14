@@ -1,0 +1,48 @@
+{% from 'macros/render_input.html' import render_input %}
+{% extends 'layouts/auth.base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+
+<div class="card fat">
+    <div class="card-body">
+        <h4 class="card-title">Login</h4>
+        
+        <!-- Alert message -->
+        {% include 'includes/alert.html' %}
+
+        <form action="{{ url_for('auth.login', next=request.args.get('next')) }}" method="POST" class="form-validation" novalidate="">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                <label for="email">E-Mail Address</label>
+                {{ render_input(form.email, "", "E-mail address is invalid") }}
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password
+                    <a href="{{ url_for('auth.forgot_password') }}" class="float-right">
+                        Forgot Password?
+                    </a>
+                </label>
+                {{ render_input(form.password, "", "Password is required", **{"data-eye": ""}) }}
+            </div>
+
+            <div class="form-group">
+                <div class="custom-checkbox custom-control">
+                    {{ form.remember(class="custom-control-input") }}
+                    <label for="remember" class="custom-control-label">Remember Me</label>
+                </div>
+            </div>
+
+            <div class="form-group m-0">
+                <button type="submit" class="btn btn-primary btn-block">
+                    Login
+                </button>
+            </div>
+            <div class="mt-4 text-center">
+                Don't have an account? <a href="{{ url_for('auth.signup') }}">Sign up</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

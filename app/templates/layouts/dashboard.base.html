@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    {% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/font-awesome/css/font-awesome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/perfect-scrollbar/css/perfect-scrollbar.css') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+    {% endblock %}
+    
+    <title>Tickette &mdash; {% block title %}{% endblock %}</title>
+</head>
+<body class="body body-lighten">
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
+
+        <!-- Website Content -->
+        <div class="content">
+            <!-- Navbar Top Fixed -->
+            {% include 'includes/navbar.html' %}
+
+            <!-- Content Container -->
+            <div class="container-fluid">
+                <!-- Header -->
+                <div class="content-box mb-3 content-lighten max-w-1000">
+                    <h3>{% block header %}{% endblock %}</h3>
+                    <p class="text-muted">{% block text %}{% endblock %}</p>
+                    <!-- Button -->
+                    {% block button %}{% endblock %}
+                </div>
+
+                <!-- Content -->
+                {% block content %}{% endblock %}
+
+                <!-- Footer -->
+                {% include 'includes/footer.html' %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Javascript Library -->
+    {% block script %}
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='vendor/perfect-scrollbar/dist/perfect-scrollbar.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/nanobar/nanobar.js') }}"></script>
+    <script>
+        $(function() {
+            new PerfectScrollbar('.list-scrollbar');
+            var nanobar = new Nanobar();
+            nanobar.go(100);
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

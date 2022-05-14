@@ -1,0 +1,200 @@
+{% from 'macros/render_input.html' import render_input %}
+{% from 'macros/render_select.html' import render_select %}
+
+{% extends 'layouts/dashboard.base.html' %}
+{% block style %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/froala-editor/css/froala_editor.pkgd.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/froala-editor/css/froala_style.min.css') }}">
+{% endblock %}
+
+{% block header %}
+    {% block title %}Ticket Information{% endblock %}
+{% endblock %}
+{% block text %}
+    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+{% endblock %}
+
+{% block button %}
+    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal">
+        Delete
+    </button>
+{% endblock %}
+{% block content %}
+
+<div class="max-w-1000">
+    {% include 'includes/alert.html' %}
+</div>
+
+<!-- Ticket Info -->
+<div class="content-box mb-3 content-lighten max-w-1000">
+    <table class="table table-striped table-borderless">
+        <tbody>
+            <form action="{{ url_for('admin.view_ticket', id=ticket.id) }}" method="POST">
+                {{ form.csrf_token }}
+                <tr>
+                    <td>Date Created</td>
+                    <td>{{ ticket.created_at.strftime('%d %b %Y, %H:%M %p') }}</td>
+                </tr>
+                <tr>
+                    <td class="w-25">Number</td>
+                    <td>{{ ticket.number }}</td>
+                </tr>
+                <tr>
+                    <td>Author</td>
+                    <td>{{ ticket.author.name }}</td>
+                </tr>
+                <tr>
+                    <td>E-mail address</td>
+                    <td>
+                        <a href="mailto:{{ ticket.author.email }}">{{ ticket.author.email }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Subject</td>
+                    <td>{{ ticket.subject }}</td>
+                </tr>
+                <tr>
+                    <td>Body</td>
+                    <td>
+                        <div class="fr-view">{{ ticket.body|safe }}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Assignee</td>
+                    <td>
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                {{ render_select(form.owner, "Assignee is required") }}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Category</td>
+                    <td>{{ ticket.category.category }}</td>
+                </tr>
+                <tr>
+                    <td>Priority</td>
+                    <td>
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                {{ render_select(form.priority, "Priority is required") }}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td>
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                {{ render_select(form.status, "Status is required") }}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Attachment</td>
+                    <td>
+                        {% if ticket.file_link %}
+                        <a href="{{ url_for('admin.download_attachment', id=ticket.author.id, filename=ticket.file_link) }}">
+                            {{ ticket.orig_file }}
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button class="btn btn-primary btn-sm">Update</button>
+                        <a href="{{ url_for('admin.new_tickets') }}" class="btn btn-secondary btn-sm">
+                            Back
+                        </a>
+                    </td>
+                </tr>
+            </form>
+        </tbody>
+    </table>
+</div>
+
+<!-- Comment Section -->
+<div class="content-box mb-3 content-lighten max-w-1000">
+    <div class="comment-wrapper">
+        {% if ticket.status.status != 'Closed' %}
+        <form action="{{ url_for('admin.comment_ticket', id=ticket.id) }}" method="POST">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                {{ render_input(comment_form.comment, "Write a message...", "Message is required", rows="5") }}
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm pull-right">Post</button>
+        </form>
+        {% else %}
+        <div class="text-center">
+            <p>This ticket has been closed.</p>
+        </div>
+        {% endif %}
+        
+        <div class="clearfix"></div>
+        <hr>
+        
+        {% for comment in comments %}
+        <ul class="media-list">
+            <li class="media">
+                <a href="javascript:void(0)" class="pull-left mt-3 mr-3">
+                    <img src="{{ url_for('static', filename='uploads/profiles/' + comment.user.image) }}" alt="profile-img" class="rounded">
+                </a>
+                <div class="media-body">
+                    <span class="text-muted pull-right">
+                        <small class="text-muted">{{ comment.created_at.strftime('%d %b %Y, %H:%M %p') }}</small>
+                    </span>
+                    <strong class="text-dark">{{ comment.user.name }}</strong>
+                    <small class="text-muted">{{ comment.user.role }}</small>
+                    <p>
+                        <div class="fr-view">{{ comment.comment|safe }}</div>
+                    </p>
+                </div>
+            </li>
+        </ul>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this ticket? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form action="{{ url_for('admin.delete_ticket', uid=ticket.author.id, tid=ticket.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="submit" class="btn btn-danger" value="Delete">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+{{ super() }}
+<script src="{{ url_for('static', filename='vendor/froala-editor/js/froala_editor.pkgd.min.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        new FroalaEditor('textarea#comment', {
+            toolbarButtons: ['fontFamily', '|', 'bold', 'italic', 'underline', 'undo', 'redo', 'codeView'],
+            fontFamilySelection: true,
+            pluginsEnabled: ['fontFamily']
+        });
+    });
+</script>
+{% endblock %}

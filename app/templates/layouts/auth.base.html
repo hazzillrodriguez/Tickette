@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+
+    <title>Tickette &mdash; {% block title %}{% endblock %}</title>
+</head>
+<body class="my-login-page">
+
+    <section class="h-100">
+        <div class="container h-100">
+            <div class="row justify-content-md-center h-100">
+                <div class="card-wrapper">
+                    <div class="brand">
+                        <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="logo">
+                    </div>
+                    
+                    {% block content %}{% endblock %}
+                    
+                    <div class="footer">
+                        Copyright &copy; {{ year }} &mdash; <a href="https://linkedin.com/in/hazzillrodriguez">hazzillrodriguez</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Javascript library -->
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>

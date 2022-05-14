@@ -1,0 +1,15 @@
+{% macro render_select(field, message) %}
+    {% if field.errors %}
+        {{ field(class="custom-select is-invalid", **kwargs) }}
+        {% for error in field.errors %}
+            <div class="invalid-feedback">
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% else %}
+        {{ field(class="custom-select", **kwargs) }}
+        <div class="invalid-feedback">
+            {{ message }}
+        </div>
+    {% endif %}
+{% endmacro %}

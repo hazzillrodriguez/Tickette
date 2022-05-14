@@ -1,0 +1,27 @@
+<nav class="navbar navbar-expand-lg fixed-top navbar-lighten">
+    <!-- Navbar Title -->
+    <a class="navbar-brand navbar-link" href="javascript:void(0)">Tickette</a>
+
+    <!-- Navbar Sidebar Menu Toggle -->
+    <span class="navbar-text">
+        <a href="javascript:void(0)" id="sidebar-toggle" class="navbar-bars">
+            <i class="fa fa-bars" aria-hidden="true"></i>
+        </a>
+    </span>
+
+    <!-- Navbar Dropdown Menu -->
+    <div class="collapse navbar-collapse">
+        <div class="dropdown dropdown-logged dropdown-logged-lighten">
+            <a href="javascript:void(0)" data-toggle="dropdown" class="dropdown-logged-toggle dropdown-link">
+                <span class="dropdown-user float-left">Menu</span>
+            </a>
+            <div class="dropdown-menu dropdown-logged-menu dropdown-menu-right border-0 dropdown-menu-lighten">
+                <div class="dropdown-menu-arrow"></div>
+                <a class="dropdown-item dropdown-logged-item" href="{{ url_for('admin.my_profile') }}"><i class="fa fa-user-o" aria-hidden="true"></i>Your profile</a>
+                <a class="dropdown-item dropdown-logged-item" href="{{ url_for('admin.change_password') }}"><i class="fa fa-key" aria-hidden="true"></i>Change password</a>
+                <div class="dropdown-divider border-light"></div>
+                <a class="dropdown-item dropdown-logged-item" href="{{ url_for('auth.logout') }}"><i class="fa fa-sign-out" aria-hidden="true"></i>Logout</a>
+            </div>
+        </div>
+    </div>
+</nav>
