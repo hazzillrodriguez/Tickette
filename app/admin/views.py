@@ -25,7 +25,7 @@ path = os.getcwd()
 
 # Pass variable to all templates
 def render_template(*args, **kwargs):
-	notifications = Notification.query.filter(Notification.receiver_id==current_user.id).order_by(desc(Notification.created_at)).all()
+	notifications = Notification.query.filter(Notification.receiver_id==current_user.id).filter(Notification.seen==False).order_by(desc(Notification.created_at)).all()
 	year = datetime.date.today().year
 	return _render(*args, **kwargs, notifications=notifications, year=year)
 
@@ -128,19 +128,19 @@ def view_ticket(id):
 	if form.validate_on_submit():
 		if not form.owner.data:
 			if str(ticket.owner_id or '') != str(form.owner.data):
-				db.session.add(Notification(message='unassigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id))
+				db.session.add(Notification(message='unassigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
 			ticket.owner_id = None
 		else:
 			if str(ticket.owner_id or '') != str(form.owner.data):
-				db.session.add(Notification(message='assigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id))
+				db.session.add(Notification(message='assigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
 			ticket.owner_id = form.owner.data
 		
 		if ticket.priority_id != int(form.priority.data):
-			db.session.add(Notification(message='updated priority on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id))
+			db.session.add(Notification(message='updated priority on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
 		ticket.priority_id = form.priority.data
 
 		if ticket.status_id != int(form.status.data):
-			db.session.add(Notification(message='updated status on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id))
+			db.session.add(Notification(message='updated status on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
 		ticket.status_id = form.status.data
 		
 		db.session.commit()
@@ -162,14 +162,14 @@ def comment_ticket(id):
 		# Send notification to the author and owner,
 		# if the ticket is not mine and is not assigned to me
 		if author_id != current_user.id and owner_id != current_user.id and owner_id is not None:
-			db.session.add(Notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id))
-			db.session.add(Notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id))
+			db.session.add(Notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
+			db.session.add(Notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
 		# Send notification to the author, if the ticket is not mine
 		elif author_id != current_user.id:
-			db.session.add(Notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id))
+			db.session.add(Notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
 		# Send notification to the owner, if the ticket is mine and is not assigned to me
 		if author_id == current_user.id and owner_id != current_user.id and owner_id is not None:
-			db.session.add(Notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id))
+			db.session.add(Notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
 
 		db.session.add(Comment(comment=comment, author_id=current_user.id, ticket_id=ticket_id.id))
 		db.session.commit()
@@ -363,4 +363,15 @@ def change_password():
 @admin_blueprint.route('/notifications', methods=['GET'])
 @login_required(role='Administrator')
 def notifications():
-	return render_template('admin/notifications.html')
+	my_notifications = Notification.query.filter(Notification.receiver_id==current_user.id).order_by(desc(Notification.created_at)).all()
+	return render_template('admin/notifications.html', my_notifications=my_notifications)
+
+@admin_blueprint.route('/read-notification/<int:tid>/<int:nid>', methods=['GET'])
+@login_required(role='Administrator')
+def read_notification(tid, nid):
+	ticket_id = Ticket.query.get_or_404(tid)
+	notification_id = Notification.query.get_or_404(nid)
+	
+	notification_id.seen = True
+	db.session.commit()
+	return redirect(url_for('admin.view_ticket', id=ticket_id.id))
