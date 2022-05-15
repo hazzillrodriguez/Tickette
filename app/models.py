@@ -3,8 +3,10 @@ from flask_login import UserMixin
 
 from app.exts import db, login_manager
 from sqlalchemy.sql import func
+from sqlalchemy import event
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from werkzeug.security import generate_password_hash
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -56,6 +58,14 @@ class User(db.Model, UserMixin):
 		self.password = password
 		self.role = role
 		self.image = image
+
+@event.listens_for(User.__table__, 'after_create')
+def create_users(*args, **kwargs):
+	profile = 'default-profile.png'
+	db.session.add(User(name='Ryan Reynolds', email='admin@tickette.com', password=generate_password_hash('admindemo'), role='Administrator', image=profile))
+	db.session.add(User(name='Robert Downey', email='agent@tickette.com', password=generate_password_hash('agentdemo'), role='Agent', image=profile))
+	db.session.add(User(name='Jeremy Renner', email='customer@tickette.com', password=generate_password_hash('customerdemo'), role='Customer', image=profile))
+	db.session.commit()
 
 class Ticket(db.Model):
 	__tablename__ = 'tickets'
@@ -112,6 +122,11 @@ class Category(db.Model):
 	def __init__(self, category):
 		self.category = category
 
+@event.listens_for(Category.__table__, 'after_create')
+def create_categories(*args, **kwargs):
+	db.session.add(Category(category='Help and support'))
+	db.session.commit()
+
 class Priority(db.Model):
 	__tablename__ = 'priorities'
 
@@ -127,6 +142,14 @@ class Priority(db.Model):
 	def __init__(self, priority):
 		self.priority = priority
 
+@event.listens_for(Priority.__table__, 'after_create')
+def create_priorities(*args, **kwargs):
+	db.session.add(Priority(priority='Low'))
+	db.session.add(Priority(priority='Medium'))
+	db.session.add(Priority(priority='High'))
+	db.session.add(Priority(priority='Urgent'))
+	db.session.commit()
+
 class Status(db.Model):
 	__tablename__ = 'statuses'
 
@@ -140,6 +163,14 @@ class Status(db.Model):
 
 	def __init__(self, status):
 		self.status = status
+
+@event.listens_for(Status.__table__, 'after_create')
+def create_statuses(*args, **kwargs):
+	db.session.add(Status(status='Open'))
+	db.session.add(Status(status='Pending'))
+	db.session.add(Status(status='Solved'))
+	db.session.add(Status(status='Closed'))
+	db.session.commit()
 
 class Comment(db.Model):
 	__tablename__ = 'comments'
