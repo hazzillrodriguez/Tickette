@@ -113,3 +113,37 @@ def new_tickets():
 		flash('Ticket has been created.', 'primary')
 		return redirect(url_for('agent.new_tickets'))
 	return render_template('agent/new_tickets.html', form=form, tickets=tickets)
+
+@agent_blueprint.route('/view-ticket/<int:id>', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def view_ticket(id):
+	ticket = Ticket.query.filter_by(id=id).first()
+	comments = Comment.query.filter(Comment.ticket_id==id).all()
+	
+	if ticket is None:
+		return redirect(url_for('agent.new_tickets'))
+	
+	form = UpdateTicketForm(owner=ticket.owner_id, priority=ticket.priority_id, status=ticket.status_id)
+	comment_form = CommentForm()
+	if form.validate_on_submit():
+		if not form.owner.data:
+			if str(ticket.owner_id or '') != str(form.owner.data):
+				db.session.add(Notification(message='unassigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
+			ticket.owner_id = None
+		else:
+			if str(ticket.owner_id or '') != str(form.owner.data):
+				db.session.add(Notification(message='assigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
+			ticket.owner_id = form.owner.data
+		
+		if ticket.priority_id != int(form.priority.data):
+			db.session.add(Notification(message='updated priority on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
+		ticket.priority_id = form.priority.data
+
+		if ticket.status_id != int(form.status.data):
+			db.session.add(Notification(message='updated status on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
+		ticket.status_id = form.status.data
+		
+		db.session.commit()
+		flash('Ticket has been updated.', 'primary')
+		return redirect(url_for('agent.view_ticket', id=id))
+	return render_template('agent/view_ticket.html', form=form, comment_form=comment_form, ticket=ticket, comments=comments)
