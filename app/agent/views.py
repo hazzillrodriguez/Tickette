@@ -269,3 +269,9 @@ def delete_priority(id):
 		flash('Priority has been deleted.', 'primary')
 		return redirect(url_for('agent.priority'))
 	return redirect(url_for('agent.priority'))
+
+@agent_blueprint.route('/statuses', methods=['GET'])
+@login_required(role='Agent')
+def status():
+	statuses = Status.query.all()
+	return render_template('agent/status.html', statuses=statuses)
