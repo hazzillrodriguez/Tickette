@@ -191,3 +191,9 @@ def delete_ticket(uid, tid):
 		flash('Ticket has been deleted.', 'primary')
 		return redirect(url_for('agent.new_tickets'))
 	return redirect(url_for('agent.view_ticket', id=tid))
+
+@agent_blueprint.route('/download/attachment/<int:id>/<filename>')
+def download_attachment(id, filename):
+	FOLDER_ID = os.path.join(path, 'app/static/uploads/attachments/' + str(id))
+	location = os.path.join(FOLDER_ID, filename)
+	return send_file(location, as_attachment=True)
