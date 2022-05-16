@@ -17,8 +17,8 @@
             </a>
             <div class="dropdown-menu dropdown-logged-menu dropdown-menu-right border-0 dropdown-menu-lighten">
                 <div class="dropdown-menu-arrow"></div>
-                <a class="dropdown-item dropdown-logged-item" href="{{ url_for('admin.my_profile') }}"><i class="fa fa-user-o" aria-hidden="true"></i>Your profile</a>
-                <a class="dropdown-item dropdown-logged-item" href="{{ url_for('admin.change_password') }}"><i class="fa fa-key" aria-hidden="true"></i>Change password</a>
+                <a class="dropdown-item dropdown-logged-item" href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.my_profile') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.my_profile') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.my_profile') }} {% endif %}"><i class="fa fa-user-o" aria-hidden="true"></i>Your profile</a>
+                <a class="dropdown-item dropdown-logged-item" href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.change_password') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.change_password') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.change_password') }} {% endif %}"><i class="fa fa-key" aria-hidden="true"></i>Change password</a>
                 <div class="dropdown-divider border-light"></div>
                 <a class="dropdown-item dropdown-logged-item" href="{{ url_for('auth.logout') }}"><i class="fa fa-sign-out" aria-hidden="true"></i>Logout</a>
             </div>

@@ -7,23 +7,23 @@
             <li class="list-item">
                 <p class="list-title text-uppercase">Dashboard</p>
                 <ul class="list-unstyled">
-                    <li><a href="{{ url_for('admin.dashboard') }}" class="list-link"><span class="list-icon"><i class="fa fa-home" aria-hidden="true"></i></span>Home</a></li>
+                    <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.dashboard') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.dashboard') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.dashboard') }} {% endif %}" class="list-link"><span class="list-icon"><i class="fa fa-home" aria-hidden="true"></i></span>Home</a></li>
                     <li><a href="javascript:void(0)" class="list-link link-arrow link-current"><span class="list-icon"><i class="fa fa-cog" aria-hidden="true"></i></span>Customer Support</a>
                         <ul class="list-unstyled list-hidden">
-                            <li><a href="{{ url_for('admin.new_tickets') }}" class="list-link">New Tickets</a></li>
-                            <li><a href="{{ url_for('admin.my_tickets') }}" class="list-link">My Tickets</a></li>
+                            <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.new_tickets') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.new_tickets') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.new_tickets') }} {% endif %}" class="list-link">New Tickets</a></li>
+                            <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.my_tickets') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.my_tickets') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.my_tickets') }} {% endif %}" class="list-link">My Tickets</a></li>
                             <li><a href="javascript:void(0)" class="list-link link-arrow link-current">General</a>
                                 <ul class="list-unstyled list-hidden">
-                                    <li><a href="{{ url_for('admin.category') }}" class="list-link">Categories</a></li>
-                                    <li><a href="{{ url_for('admin.priority') }}" class="list-link">Priorities</a></li>
-                                    <li><a href="{{ url_for('admin.status') }}" class="list-link">Statuses</a></li>
+                                    <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.category') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.category') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.category') }} {% endif %}" class="list-link">Categories</a></li>
+                                    <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.priority') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.priority') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.priority') }} {% endif %}" class="list-link">Priorities</a></li>
+                                    <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.status') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.status') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.status') }} {% endif %}" class="list-link">Statuses</a></li>
                                 </ul>
                             </li>
                         </ul>
                     </li>
                     <!-- Notifications -->
                     <li>
-                        <a href="{{ url_for('admin.notifications') }}" class="list-link clearfix">
+                        <a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.notifications') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.notifications') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.notifications') }} {% endif %}" class="list-link clearfix">
                             <div class="float-left">
                                 <span class="list-icon">
                                     <i class="fa fa-bell" aria-hidden="true"></i>
@@ -38,12 +38,14 @@
             </li>
 
             <!-- Simple Menu -->
+            {% if current_user.role == 'Administrator' %}
             <li class="list-item">
                 <p class="list-title text-uppercase">User Management</p>
                 <ul class="list-unstyled">
                     <li><a href="{{ url_for('admin.create_account') }}" class="list-link"><span class="list-icon"><i class="fa fa-user" aria-hidden="true"></i></span>Create an account</a></li>
                 </ul>
             </li>
+            {% endif %}
         </ul>
     </div>
 </div>
