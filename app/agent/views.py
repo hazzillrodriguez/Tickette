@@ -176,3 +176,18 @@ def comment_ticket(id):
 		flash('Your comment has been posted.', 'primary')
 		return redirect(url_for('agent.view_ticket', id=id))
 	return render_template('agent/view_ticket.html', comment_form=comment_form)
+
+@agent_blueprint.route('/ticket/delete/<int:uid>/<int:tid>', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def delete_ticket(uid, tid):
+	ticket_id = Ticket.query.get_or_404(tid)
+	if request.method == 'POST':
+		if ticket_id.file_link:
+			FOLDER_ID = os.path.join(path, 'app/static/uploads/attachments/' + str(uid))
+			os.remove(os.path.join(FOLDER_ID, ticket_id.file_link))
+
+		db.session.delete(ticket_id)
+		db.session.commit()
+		flash('Ticket has been deleted.', 'primary')
+		return redirect(url_for('agent.new_tickets'))
+	return redirect(url_for('agent.view_ticket', id=tid))
