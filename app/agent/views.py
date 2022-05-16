@@ -147,3 +147,32 @@ def view_ticket(id):
 		flash('Ticket has been updated.', 'primary')
 		return redirect(url_for('agent.view_ticket', id=id))
 	return render_template('agent/view_ticket.html', form=form, comment_form=comment_form, ticket=ticket, comments=comments)
+
+@agent_blueprint.route('/comment-ticket/<int:id>', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def comment_ticket(id):
+	ticket_id = Ticket.query.get_or_404(id)
+	comment_form = CommentForm()
+	if comment_form.validate_on_submit():
+		author_id = ticket_id.author_id
+		owner_id = ticket_id.owner_id
+		comment = comment_form.comment.data
+
+		message = 'commented on ticket'
+		# Send notification to the author and owner,
+		# if the ticket is not mine and is not assigned to me
+		if author_id != current_user.id and owner_id != current_user.id and owner_id is not None:
+			db.session.add(Notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
+			db.session.add(Notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
+		# Send notification to the author, if the ticket is not mine
+		elif author_id != current_user.id:
+			db.session.add(Notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
+		# Send notification to the owner, if the ticket is mine and is not assigned to me
+		if author_id == current_user.id and owner_id != current_user.id and owner_id is not None:
+			db.session.add(Notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
+
+		db.session.add(Comment(comment=comment, author_id=current_user.id, ticket_id=ticket_id.id))
+		db.session.commit()
+		flash('Your comment has been posted.', 'primary')
+		return redirect(url_for('agent.view_ticket', id=id))
+	return render_template('agent/view_ticket.html', comment_form=comment_form)
