@@ -295,3 +295,16 @@ def my_profile():
 		flash('Your profile has been changed.', 'primary')
 		return redirect(url_for('agent.my_profile'))
 	return render_template('agent/my_profile.html', form=form, user=user)
+
+@agent_blueprint.route('/change-password', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def change_password():
+	user = User.query.filter(User.id==current_user.id).first()
+	form = ChangePasswordForm()
+	if form.validate_on_submit():
+		hashed_password = generate_password_hash(form.password.data)
+		user.password = hashed_password
+		db.session.commit()
+		flash('Your password has been changed.', 'primary')
+		return redirect(url_for('agent.change_password'))
+	return render_template('agent/change_password.html', form=form)
