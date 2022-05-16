@@ -197,3 +197,39 @@ def download_attachment(id, filename):
 	FOLDER_ID = os.path.join(path, 'app/static/uploads/attachments/' + str(id))
 	location = os.path.join(FOLDER_ID, filename)
 	return send_file(location, as_attachment=True)
+
+@agent_blueprint.route('/categories', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def category():
+	categories = Category.query.all()
+	form = CategoryForm()
+	if form.validate_on_submit():
+		category = Category(category=form.category.data)
+		db.session.add(category)
+		db.session.commit()
+		flash('Category has been created.', 'primary')
+		return redirect(url_for('agent.category'))
+	return render_template('agent/category.html', form=form, categories=categories)
+
+@agent_blueprint.route('/category/update/<int:id>', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def update_category(id):
+	category_id = Category.query.get_or_404(id)
+	form = CategoryForm()
+	if form.validate_on_submit():
+		category_id.category = form.category.data
+		db.session.commit()
+		flash('Category has been updated.', 'primary')
+		return redirect(url_for('agent.category'))
+	return render_template('agent/category.html', form=form)
+
+@agent_blueprint.route('/category/delete/<int:id>', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def delete_category(id):
+	category_id = Category.query.get_or_404(id)
+	if request.method == 'POST':
+		db.session.delete(category_id)
+		db.session.commit()
+		flash('Category has been deleted.', 'primary')
+		return redirect(url_for('agent.category'))
+	return redirect(url_for('agent.category'))
