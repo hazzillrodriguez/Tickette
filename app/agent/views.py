@@ -233,3 +233,39 @@ def delete_category(id):
 		flash('Category has been deleted.', 'primary')
 		return redirect(url_for('agent.category'))
 	return redirect(url_for('agent.category'))
+
+@agent_blueprint.route('/priorities', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def priority():
+	priorities = Priority.query.all()
+	form = PriorityForm()
+	if form.validate_on_submit():
+		priority = Priority(priority=form.priority.data)
+		db.session.add(priority)
+		db.session.commit()
+		flash('Priority has been created.', 'primary')
+		return redirect(url_for('agent.priority'))
+	return render_template('agent/priority.html', form=form, priorities=priorities)
+
+@agent_blueprint.route('/priority/update/<int:id>', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def update_priority(id):
+	priority_id = Priority.query.get_or_404(id)
+	form = PriorityForm()
+	if form.validate_on_submit():
+		priority_id.priority = form.priority.data
+		db.session.commit()
+		flash('Priority has been updated.', 'primary')
+		return redirect(url_for('agent.priority'))
+	return render_template('agent/priority.html', form=form)
+
+@agent_blueprint.route('/priority/delete/<int:id>', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def delete_priority(id):
+	priority_id = Priority.query.get_or_404(id)
+	if request.method == 'POST':
+		db.session.delete(priority_id)
+		db.session.commit()
+		flash('Priority has been deleted.', 'primary')
+		return redirect(url_for('agent.priority'))
+	return redirect(url_for('agent.priority'))
