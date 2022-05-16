@@ -1,0 +1,58 @@
+{% extends 'layouts/dashboard.base.html' %}
+{% block style %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/datatables/css/datatables.bootstrap4.min.css') }}">
+{% endblock %}
+
+{% block header %}
+    {% block title %}Notifications{% endblock %}
+{% endblock %}
+{% block text %}
+    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+{% endblock %}
+{% block content %}
+
+<!-- Notification Table -->
+<div class="content-box mb-3 content-lighten max-w-1000">
+    <table id="notificationTable" class="table table-striped table-borderless table-responsive-sm">
+        <thead>
+            <tr>
+                <th>Notification</th>
+                <th>Date Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in my_notifications %}
+            <tr>
+                <td>
+                    {% if row.seen == 0 %}
+                        <span class="indicator mr-1"></span>
+                    {% endif %}
+                    {% if row.sender.id == current_user.id %}
+                        [You] {{ row.sender.name }}
+                    {% else %}
+                        {{ row.sender.name }}
+                    {% endif %}
+                    {{ row.message }}
+                    <a href="{{ url_for('agent.read_notification', tid=row.ticket_notification.id, nid=row.id) }}">
+                        #{{ row.ticket_notification.number }}
+                    </a>
+                </td>
+                <td>{{ row.created_at.strftime('%m-%d-%Y, %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+{% block script %}
+{{ super() }}
+<script src="{{ url_for('static', filename='vendor/datatables/js/jquery.datatables.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/datatables/js/datatables.bootstrap4.min.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        $('#notificationTable').DataTable({'ordering': false});
+    });
+</script>
+{% endblock %}

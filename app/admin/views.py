@@ -190,7 +190,7 @@ def delete_ticket(uid, tid):
 		db.session.commit()
 		flash('Ticket has been deleted.', 'primary')
 		return redirect(url_for('admin.new_tickets'))
-	return redirect(url_for('admin.view_ticket', id=id))
+	return redirect(url_for('admin.view_ticket', id=tid))
 
 @admin_blueprint.route('/download/attachment/<int:id>/<filename>')
 def download_attachment(id, filename):
