@@ -1,0 +1,78 @@
+{% from 'macros/render_upload.html' import render_upload %}
+
+{% extends 'layouts/dashboard.base.html' %}
+{% block header %}
+    {% block title %}My Profile{% endblock %}
+{% endblock %}
+{% block text %}
+    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+{% endblock %}
+{% block content %}
+
+<div class="max-w-1000">
+    {% include 'includes/alert.html' %}
+</div>
+
+<!-- Profile Section -->
+<div class="max-w-1000">
+    <div class="row">
+        <div class="col-md-6 col-lg-4">
+            <div class="content-box mb-3 content-lighten">
+                <img class="rounded-circle mx-auto profile-img" src="{{ url_for('static', filename='uploads/profiles/' + user.image) }}" alt="profile-img">
+                
+                <div class="clearfix"></div>
+                <hr>
+                
+                <div class="text-center mb-3">
+                    <h6>{{ user.name }}</h6>
+                    <small class="text-muted">{{ user.role }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-8">
+            <div class="content-box content-lighten">
+                <form action="{{ url_for('agent.my_profile') }}" method="POST" enctype="multipart/form-data">
+                    {{ form.csrf_token }}
+                    <div class="input-group">
+                        <div class="custom-file">
+                            {{ render_upload(form.profile) }}
+                            <label class="custom-file-label" for="profile">Choose file</label>
+                        </div>
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-dark">Upload</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> <!-- ./row -->
+</div>
+
+{% endblock %}
+{% block script %}
+{{ super() }}
+<script>
+    $(document).ready(function() {
+        $('#profile').on('change', function() {
+            var fileName = $(this).val();
+            $(this).next('.custom-file-label').html(fileName);
+        })
+
+        maxFileSize = 2 * 1024 * 1024
+        $('#profile').change(function() {
+            // File size validation
+            fileSize = this.files[0].size;
+            if(fileSize > maxFileSize) {
+                this.setCustomValidity('Maximum file size exceeded');
+                this.reportValidity();
+            }
+            // File extension validation
+            var ext = $(this).val().split('.').pop().toLowerCase();
+            if($.inArray(ext, ['png', 'jpg', 'jpeg']) == -1) {
+                this.setCustomValidity('This file extension is not allowed');
+                this.reportValidity();
+            }
+        });
+    });
+</script>
+{% endblock %}
