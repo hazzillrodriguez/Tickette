@@ -123,7 +123,7 @@
     <div class="comment-wrapper">
         {% if ticket.status.status != 'Closed' %}
         <form action="{{ url_for('admin.comment_ticket', id=ticket.id) }}" method="POST">
-            {{ form.csrf_token }}
+            {{ comment_form.csrf_token }}
             <div class="form-group">
                 {{ render_input(comment_form.comment, "Write a message...", "Message is required", rows="5") }}
             </div>
