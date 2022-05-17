@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, render_template as _render, send_file, redirect, request, url_for, flash
 from flask_login import current_user
 
-from app.admin.forms import TicketForm, UpdateTicketForm, CommentForm, ChangeProfileForm, ChangePasswordForm
+from app.admin.forms import TicketForm, CommentForm, ChangeProfileForm, ChangePasswordForm
 from app.models import User, Ticket, Comment, Notification
 
 from app.utils.generate_digits import random_numbers
@@ -11,7 +11,6 @@ from app.exts import db
 from werkzeug.utils import secure_filename
 
 from sqlalchemy import desc
-from sqlalchemy import or_
 
 from werkzeug.security import generate_password_hash
 
@@ -76,7 +75,7 @@ def my_tickets():
 		return redirect(url_for('customer.my_tickets'))
 	return render_template('customer/my_tickets.html', form=form, tickets=tickets)
 
-@customer_blueprint.route('/view-ticket/<int:id>', methods=['GET', 'POST'])
+@customer_blueprint.route('/view-ticket/<int:id>', methods=['GET'])
 @login_required(role='Customer')
 def view_ticket(id):
 	ticket = Ticket.query.filter(Ticket.author_id==current_user.id).filter_by(id=id).first()
@@ -85,30 +84,8 @@ def view_ticket(id):
 	if ticket is None:
 		return redirect(url_for('customer.my_tickets'))
 	
-	form = UpdateTicketForm(owner=ticket.owner_id, priority=ticket.priority_id, status=ticket.status_id)
 	comment_form = CommentForm()
-	if form.validate_on_submit():
-		if not form.owner.data:
-			if str(ticket.owner_id or '') != str(form.owner.data):
-				db.session.add(Notification(message='unassigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
-			ticket.owner_id = None
-		else:
-			if str(ticket.owner_id or '') != str(form.owner.data):
-				db.session.add(Notification(message='assigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
-			ticket.owner_id = form.owner.data
-		
-		if ticket.priority_id != int(form.priority.data):
-			db.session.add(Notification(message='updated priority on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
-		ticket.priority_id = form.priority.data
-
-		if ticket.status_id != int(form.status.data):
-			db.session.add(Notification(message='updated status on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
-		ticket.status_id = form.status.data
-		
-		db.session.commit()
-		flash('Ticket has been updated.', 'primary')
-		return redirect(url_for('customer.view_ticket', id=id))
-	return render_template('customer/view_ticket.html', form=form, comment_form=comment_form, ticket=ticket, comments=comments)
+	return render_template('customer/view_ticket.html', comment_form=comment_form, ticket=ticket, comments=comments)
 
 @customer_blueprint.route('/comment-ticket/<int:id>', methods=['GET', 'POST'])
 @login_required(role='Customer')

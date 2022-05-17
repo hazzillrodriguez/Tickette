@@ -4,9 +4,7 @@ from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, SelectField, TextAreaField
 from wtforms.validators import DataRequired, Length, EqualTo
 
-from app.models import User, Category, Priority, Status
-
-from sqlalchemy import or_
+from app.models import Category
 
 allowed_exts = ['pdf', 'docx', 'png', 'jpg', 'jpeg', 'gif']
 
@@ -23,22 +21,6 @@ class TicketForm(FlaskForm):
 	def __init__(self, *args, **kwargs):
 		super(TicketForm, self).__init__(*args, **kwargs)
 		self.category.choices = [('', '-- Please select category --')]+[(category.id, category.category) for category in Category.query.all()]
-
-class UpdateTicketForm(FlaskForm):
-	priority = SelectField('Priority',
-		validators=[DataRequired()])
-	status = SelectField('Status',
-		validators=[DataRequired()])
-	owner = SelectField('Assignee')
-
-	def __init__(self, *args, **kwargs):
-		super(UpdateTicketForm, self).__init__(*args, **kwargs)
-		self.owner.choices = [('', '-- Choose an assignee --')]+[(owner.id, owner.name)
-			for owner in User.query.filter(or_(User.role=='Administrator', User.role=='Agent')).all()]
-		self.priority.choices = [('', '-- Please select priority --')]+[(priority.id, priority.priority)
-			for priority in Priority.query.all()]
-		self.status.choices = [('', '-- Please select status --')]+[(status.id, status.status)
-			for status in Status.query.all()]
 
 class CommentForm(FlaskForm):
 	comment = TextAreaField('Comment',
