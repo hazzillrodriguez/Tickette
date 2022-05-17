@@ -180,3 +180,16 @@ def my_profile():
 		flash('Your profile has been changed.', 'primary')
 		return redirect(url_for('customer.my_profile'))
 	return render_template('customer/my_profile.html', form=form, user=user)
+
+@customer_blueprint.route('/change-password', methods=['GET', 'POST'])
+@login_required(role='Customer')
+def change_password():
+	user = User.query.filter(User.id==current_user.id).first()
+	form = ChangePasswordForm()
+	if form.validate_on_submit():
+		hashed_password = generate_password_hash(form.password.data)
+		user.password = hashed_password
+		db.session.commit()
+		flash('Your password has been changed.', 'primary')
+		return redirect(url_for('customer.change_password'))
+	return render_template('customer/change_password.html', form=form)
