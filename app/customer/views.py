@@ -84,7 +84,7 @@ def view_ticket(id):
 	comments = Comment.query.filter(Comment.ticket_id==id).all()
 	
 	if ticket is None:
-		return redirect(url_for('customer.new_tickets'))
+		return redirect(url_for('customer.my_tickets'))
 	
 	form = UpdateTicketForm(owner=ticket.owner_id, priority=ticket.priority_id, status=ticket.status_id)
 	comment_form = CommentForm()
@@ -139,3 +139,18 @@ def comment_ticket(id):
 		flash('Your comment has been posted.', 'primary')
 		return redirect(url_for('customer.view_ticket', id=id))
 	return render_template('customer/view_ticket.html', comment_form=comment_form)
+
+@customer_blueprint.route('/ticket/delete/<int:uid>/<int:tid>', methods=['GET', 'POST'])
+@login_required(role='Customer')
+def delete_ticket(uid, tid):
+	ticket_id = Ticket.query.get_or_404(tid)
+	if request.method == 'POST':
+		if ticket_id.file_link:
+			FOLDER_ID = os.path.join(path, 'app/static/uploads/attachments/' + str(uid))
+			os.remove(os.path.join(FOLDER_ID, ticket_id.file_link))
+
+		db.session.delete(ticket_id)
+		db.session.commit()
+		flash('Ticket has been deleted.', 'primary')
+		return redirect(url_for('customer.my_tickets'))
+	return redirect(url_for('customer.view_ticket', id=tid))
