@@ -1,0 +1,63 @@
+{% extends 'layouts/dashboard.base.html' %}
+{% block header %}
+    {% block title %}Dashboard{% endblock %}
+{% endblock %}
+{% block content %}
+
+<div class="max-w-1000">
+    <div class="row">
+        <div class="col-md-4 col-xl-3">
+            <div class="card bg-clr-blue order-card">
+                <div class="card-block">
+                    <h6 class="m-b-20">Open</h6>
+                    <h2 class="text-right">
+                        <i class="fa fa-envelope-open f-left"></i>
+                        <span>{{ open|length }}</span>
+                    </h2>
+                    <p class="m-b-0">Total open tickets</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-xl-3">
+            <div class="card bg-clr-green order-card">
+                <div class="card-block">
+                    <h6 class="m-b-20">Solved</h6>
+                    <h2 class="text-right">
+                        <i class="fa fa-thumbs-up f-left"></i>
+                        <span>{{ solved|length }}</span>
+                    </h2>
+                    <p class="m-b-0">Total solved tickets</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-xl-3">
+            <div class="card bg-clr-yellow order-card">
+                <div class="card-block">
+                    <h6 class="m-b-20">Pending</h6>
+                    <h2 class="text-right">
+                        <i class="fa fa-hourglass-end f-left"></i>
+                        <span>{{ pending|length }}</span>
+                    </h2>
+                    <p class="m-b-0">Total pending tickets</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-xl-3">
+            <div class="card bg-clr-pink order-card">
+                <div class="card-block">
+                    <h6 class="m-b-20">Closed</h6>
+                    <h2 class="text-right">
+                        <i class="fa fa-envelope f-left"></i>
+                        <span>{{ closed|length }}</span>
+                    </h2>
+                    <p class="m-b-0">Total closed tickets</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
