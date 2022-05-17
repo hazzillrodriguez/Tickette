@@ -193,3 +193,19 @@ def change_password():
 		flash('Your password has been changed.', 'primary')
 		return redirect(url_for('customer.change_password'))
 	return render_template('customer/change_password.html', form=form)
+
+@customer_blueprint.route('/notifications', methods=['GET'])
+@login_required(role='Customer')
+def notifications():
+	my_notifications = Notification.query.filter(Notification.receiver_id==current_user.id).order_by(desc(Notification.created_at)).all()
+	return render_template('customer/notifications.html', my_notifications=my_notifications)
+
+@customer_blueprint.route('/read-notification/<int:tid>/<int:nid>', methods=['GET'])
+@login_required(role='Customer')
+def read_notification(tid, nid):
+	ticket_id = Ticket.query.get_or_404(tid)
+	notification_id = Notification.query.get_or_404(nid)
+	
+	notification_id.seen = True
+	db.session.commit()
+	return redirect(url_for('customer.view_ticket', id=ticket_id.id))
