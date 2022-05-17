@@ -10,8 +10,11 @@
                     <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.dashboard') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.dashboard') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.dashboard') }} {% endif %}" class="list-link"><span class="list-icon"><i class="fa fa-home" aria-hidden="true"></i></span>Home</a></li>
                     <li><a href="javascript:void(0)" class="list-link link-arrow link-current"><span class="list-icon"><i class="fa fa-cog" aria-hidden="true"></i></span>Customer Support</a>
                         <ul class="list-unstyled list-hidden">
+                            {% if current_user.role == 'Administrator' or current_user.role == 'Agent' %}
                             <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.new_tickets') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.new_tickets') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.new_tickets') }} {% endif %}" class="list-link">New Tickets</a></li>
+                            {% endif %}
                             <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.my_tickets') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.my_tickets') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.my_tickets') }} {% endif %}" class="list-link">My Tickets</a></li>
+                            {% if current_user.role == 'Administrator' or current_user.role == 'Agent' %}
                             <li><a href="javascript:void(0)" class="list-link link-arrow link-current">General</a>
                                 <ul class="list-unstyled list-hidden">
                                     <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.category') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.category') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.category') }} {% endif %}" class="list-link">Categories</a></li>
@@ -19,6 +22,7 @@
                                     <li><a href="{% if current_user.role == 'Administrator' %} {{ url_for('admin.status') }} {% elif current_user.role == 'Agent' %} {{ url_for('agent.status') }} {% elif current_user.role == 'Customer' %} {{ url_for('customer.status') }} {% endif %}" class="list-link">Statuses</a></li>
                                 </ul>
                             </li>
+                            {% endif %}
                         </ul>
                     </li>
                     <!-- Notifications -->
