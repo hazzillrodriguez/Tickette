@@ -1,8 +1,8 @@
 from flask import Blueprint, current_app, render_template as _render, send_file, redirect, request, url_for, flash
 from flask_login import current_user
 
-from app.admin.forms import TicketForm, UpdateTicketForm, CommentForm, CategoryForm, PriorityForm, UserForm, UpdateRoleForm, ChangeProfileForm, ChangePasswordForm
-from app.models import User, Ticket, Category, Priority, Status, Comment, Notification
+from app.admin.forms import TicketForm, UpdateTicketForm, CommentForm, ChangeProfileForm, ChangePasswordForm
+from app.models import User, Ticket, Comment, Notification
 
 from app.utils.generate_digits import random_numbers
 from app.utils.authorized_role import login_required
@@ -16,7 +16,6 @@ from sqlalchemy import or_
 from werkzeug.security import generate_password_hash
 
 import datetime
-import shutil
 import uuid
 import os
 

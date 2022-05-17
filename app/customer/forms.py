@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 
-from wtforms import StringField, EmailField, PasswordField, SelectField, TextAreaField
-from wtforms.validators import DataRequired, ValidationError, Length, EqualTo, Email
+from wtforms import StringField, PasswordField, SelectField, TextAreaField
+from wtforms.validators import DataRequired, Length, EqualTo
 
 from app.models import User, Category, Priority, Status
 
@@ -40,44 +40,9 @@ class UpdateTicketForm(FlaskForm):
 		self.status.choices = [('', '-- Please select status --')]+[(status.id, status.status)
 			for status in Status.query.all()]
 
-class CategoryForm(FlaskForm):
-	category = StringField('Category',
-		validators=[DataRequired(), Length(min=4, max=64)])
-
-class PriorityForm(FlaskForm):
-	priority = StringField('Priority',
-		validators=[DataRequired(), Length(min=4, max=32)])
-
 class CommentForm(FlaskForm):
 	comment = TextAreaField('Comment',
 		validators=[DataRequired()])
-
-class UserForm(FlaskForm):
-	name = StringField('Name',
-		validators=[DataRequired(), Length(min=4, max=32)])
-	email = EmailField('Email',
-		validators=[DataRequired(), Email(), Length(min=6, max=64)])
-	password = PasswordField('Password',
-		validators=[DataRequired(), Length(min=6, max=32)])
-	role = SelectField('Role',
-		validators=[DataRequired()])
-
-	def validate_email(self, email):
-		user = User.query.filter_by(email=email.data).first()
-		if user:
-			raise ValidationError('This email address is already taken')
-	
-	def __init__(self, *args, **kwargs):
-		super(UserForm, self).__init__(*args, **kwargs)
-		self.role.choices = [("", "-- Please select role --"), ("Administrator", "Administrator"), ("Agent", "Agent"), ("Customer", "Customer")]
-
-class UpdateRoleForm(FlaskForm):
-	role = SelectField('Role',
-		validators=[DataRequired()])
-
-	def __init__(self, *args, **kwargs):
-		super(UpdateRoleForm, self).__init__(*args, **kwargs)
-		self.role.choices = [("", "-- Please select role --"), ("Administrator", "Administrator"), ("Agent", "Agent")]
 
 class ChangeProfileForm(FlaskForm):
 	profile = FileField('Change Profile',
