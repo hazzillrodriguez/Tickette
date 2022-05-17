@@ -167,8 +167,8 @@ class Status(db.Model):
 @event.listens_for(Status.__table__, 'after_create')
 def create_statuses(*args, **kwargs):
 	db.session.add(Status(status='Open'))
-	db.session.add(Status(status='Pending'))
 	db.session.add(Status(status='Solved'))
+	db.session.add(Status(status='Pending'))
 	db.session.add(Status(status='Closed'))
 	db.session.commit()
 
