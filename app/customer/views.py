@@ -160,3 +160,23 @@ def download_attachment(id, filename):
 	FOLDER_ID = os.path.join(path, 'app/static/uploads/attachments/' + str(id))
 	location = os.path.join(FOLDER_ID, filename)
 	return send_file(location, as_attachment=True)
+
+@customer_blueprint.route('/my-profile', methods=['GET', 'POST'])
+@login_required(role='Customer')
+def my_profile():
+	user = User.query.filter(User.id==current_user.id).first()
+	form = ChangeProfileForm()
+	if form.validate_on_submit():
+		file = form.profile.data
+		# Rename the uploaded file
+		filename, ext = os.path.splitext(file.filename)
+		filename = str(user.id)
+		profile = secure_filename(filename + ext)
+		# then save it to the designated folder
+		file.save(os.path.join(current_app.config['PROFILE_DIR'], profile))
+
+		user.image = profile
+		db.session.commit()
+		flash('Your profile has been changed.', 'primary')
+		return redirect(url_for('customer.my_profile'))
+	return render_template('customer/my_profile.html', form=form, user=user)
