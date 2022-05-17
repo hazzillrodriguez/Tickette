@@ -42,7 +42,7 @@ def dashboard():
 @customer_blueprint.route('/my-tickets', methods=['GET', 'POST'])
 @login_required(role='Customer')
 def my_tickets():
-	tickets = Ticket.query.filter(or_(Ticket.author_id==current_user.id, Ticket.owner_id==current_user.id)).order_by(desc(Ticket.created_at)).all()
+	tickets = Ticket.query.filter(Ticket.author_id==current_user.id).order_by(desc(Ticket.created_at)).all()
 	form = TicketForm()
 	if form.validate_on_submit():
 		number = random_numbers()
@@ -79,7 +79,7 @@ def my_tickets():
 @customer_blueprint.route('/view-ticket/<int:id>', methods=['GET', 'POST'])
 @login_required(role='Customer')
 def view_ticket(id):
-	ticket = Ticket.query.filter_by(id=id).first()
+	ticket = Ticket.query.filter(Ticket.author_id==current_user.id).filter_by(id=id).first()
 	comments = Comment.query.filter(Comment.ticket_id==id).all()
 	
 	if ticket is None:
