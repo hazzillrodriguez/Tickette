@@ -137,8 +137,7 @@
             // File extension validation
             var ext = $(this).val().split('.').pop().toLowerCase();
             if($.inArray(ext, ['pdf', 'docx', 'png', 'jpg', 'jpeg', 'gif']) == -1) {
-                this.setCustomValidity('This file extension is not allowed');
-                this.reportValidity();
+                alert('This file extension is not allowed');
             }
         });
     });

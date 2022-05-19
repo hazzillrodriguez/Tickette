@@ -1,9 +1,11 @@
 {% macro render_upload(field) %}
     {% if field.errors %}
         {{ field(class="custom-file-input is-invalid") }}
-        <div class="invalid-tooltip">
-            {{ error }}
-        </div>
+        {% for error in field.errors %}
+            <div class="invalid-tooltip">
+                {{ error }}
+            </div>
+        {% endfor %}
     {% else %}
         {{ field(class="custom-file-input") }}
     {% endif %}
