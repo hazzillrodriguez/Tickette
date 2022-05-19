@@ -33,10 +33,10 @@ def render_template(*args, **kwargs):
 @login_required(role='Administrator')
 def dashboard():
 	id = current_user.id
-	open = Ticket.query.filter_by(owner_id=id).filter_by(status_id=1).all()
-	solved = Ticket.query.filter_by(owner_id=id).filter_by(status_id=2).all()
-	pending = Ticket.query.filter_by(owner_id=id).filter_by(status_id=3).all()
-	closed = Ticket.query.filter_by(owner_id=id).filter_by(status_id=4).all()
+	open = Ticket.query.filter(or_(Ticket.author_id==id, Ticket.owner_id==id)).filter_by(status_id=1).all()
+	solved = Ticket.query.filter(or_(Ticket.author_id==id, Ticket.owner_id==id)).filter_by(status_id=2).all()
+	pending = Ticket.query.filter(or_(Ticket.author_id==id, Ticket.owner_id==id)).filter_by(status_id=3).all()
+	closed = Ticket.query.filter(or_(Ticket.author_id==id, Ticket.owner_id==id)).filter_by(status_id=4).all()
 	
 	return render_template('admin/dashboard.html', open=open, solved=solved, pending=pending, closed=closed)
 
@@ -120,27 +120,32 @@ def view_ticket(id):
 	ticket = Ticket.query.filter_by(id=id).first()
 	comments = Comment.query.filter(Comment.ticket_id==id).all()
 	
-	if ticket is None:
+	if not ticket:
 		return redirect(url_for('admin.new_tickets'))
 	
 	form = UpdateTicketForm(owner=ticket.owner_id, priority=ticket.priority_id, status=ticket.status_id)
 	comment_form = CommentForm()
 	if form.validate_on_submit():
 		if not form.owner.data:
-			if str(ticket.owner_id or '') != str(form.owner.data):
-				db.session.add(Notification(message='unassigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
+			if str(ticket.owner_id or '') != str(form.owner.data) and ticket.author_id != current_user.id:
+				Notification.send_notification(message='unassigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False)
+			if str(ticket.owner_id or '') != str(form.owner.data) and ticket.author_id == current_user.id:
+				Notification.send_notification(message='unassigned ticket', receiver_id=ticket.owner_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False)
 			ticket.owner_id = None
 		else:
-			if str(ticket.owner_id or '') != str(form.owner.data):
-				db.session.add(Notification(message='assigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
+			if str(ticket.owner_id or '') != str(form.owner.data) and ticket.author_id != current_user.id:
+				Notification.send_notification(message='assigned ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False)
+				Notification.send_notification(message='assigned ticket', receiver_id=form.owner.data, sender_id=current_user.id, ticket_id=ticket.id, seen=False)
+			if str(ticket.owner_id or '') != str(form.owner.data) and ticket.author_id == current_user.id:
+				Notification.send_notification(message='assigned ticket', receiver_id=form.owner.data, sender_id=current_user.id, ticket_id=ticket.id, seen=False)
 			ticket.owner_id = form.owner.data
 		
-		if ticket.priority_id != int(form.priority.data):
-			db.session.add(Notification(message='updated priority on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
+		if ticket.priority_id != int(form.priority.data) and ticket.author_id != current_user.id:
+			Notification.send_notification(message='updated priority on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False)
 		ticket.priority_id = form.priority.data
 
-		if ticket.status_id != int(form.status.data):
-			db.session.add(Notification(message='updated status on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False))
+		if ticket.status_id != int(form.status.data) and ticket.author_id != current_user.id:
+			Notification.send_notification(message='updated status on ticket', receiver_id=ticket.author_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False)
 		ticket.status_id = form.status.data
 		
 		db.session.commit()
@@ -159,17 +164,16 @@ def comment_ticket(id):
 		comment = comment_form.comment.data
 
 		message = 'commented on ticket'
-		# Send notification to the author and owner,
-		# if the ticket is not mine and is not assigned to me
+		# Send notification to the author and owner, if the ticket is not mine and is not assigned to me
 		if author_id != current_user.id and owner_id != current_user.id and owner_id is not None:
-			db.session.add(Notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
-			db.session.add(Notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
+			Notification.send_notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False)
+			Notification.send_notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False)
 		# Send notification to the author, if the ticket is not mine
 		elif author_id != current_user.id:
-			db.session.add(Notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
+			Notification.send_notification(message=message, receiver_id=author_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False)
 		# Send notification to the owner, if the ticket is mine and is not assigned to me
 		if author_id == current_user.id and owner_id != current_user.id and owner_id is not None:
-			db.session.add(Notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False))
+			Notification.send_notification(message=message, receiver_id=owner_id, sender_id=current_user.id, ticket_id=ticket_id.id, seen=False)
 
 		db.session.add(Comment(comment=comment, author_id=current_user.id, ticket_id=ticket_id.id))
 		db.session.commit()

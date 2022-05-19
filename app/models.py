@@ -208,3 +208,9 @@ class Notification(db.Model):
 		self.sender_id = sender_id
 		self.ticket_id = ticket_id
 		self.seen = seen
+	
+	@classmethod
+	def send_notification(cls, **kw):
+		obj = cls(**kw)
+		db.session.add(obj)
+		db.session.commit()

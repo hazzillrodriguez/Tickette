@@ -12,6 +12,8 @@ class BaseConfig(object):
 	MAIL_USERNAME = 'support@tickette.com'
 	MAIL_PASSWORD = ''
 
+	MAX_CONTENT_LENGTH = 4 * 1024 * 1024
+
 	PROFILE_DIR = os.path.join(path, 'app/static/uploads/profiles')
 
 class TestConfig(BaseConfig):
