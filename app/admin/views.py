@@ -33,10 +33,10 @@ def render_template(*args, **kwargs):
 @login_required(role='Administrator')
 def dashboard():
 	id = current_user.id
-	open = Ticket.query.filter_by(or_(author_id=id, owner_id=id)).filter_by(status_id=1).all()
-	solved = Ticket.query.filter_by(or_(author_id=id, owner_id=id)).filter_by(status_id=2).all()
-	pending = Ticket.query.filter_by(or_(author_id=id, owner_id=id)).filter_by(status_id=3).all()
-	closed = Ticket.query.filter_by(or_(author_id=id, owner_id=id)).filter_by(status_id=4).all()
+	open = Ticket.query.filter(or_(Ticket.author_id==id, Ticket.owner_id==id)).filter_by(status_id=1).all()
+	solved = Ticket.query.filter(or_(Ticket.author_id==id, Ticket.owner_id==id)).filter_by(status_id=2).all()
+	pending = Ticket.query.filter(or_(Ticket.author_id==id, Ticket.owner_id==id)).filter_by(status_id=3).all()
+	closed = Ticket.query.filter(or_(Ticket.author_id==id, Ticket.owner_id==id)).filter_by(status_id=4).all()
 	
 	return render_template('admin/dashboard.html', open=open, solved=solved, pending=pending, closed=closed)
 
