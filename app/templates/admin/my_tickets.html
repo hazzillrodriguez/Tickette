@@ -5,7 +5,7 @@
 {% extends 'layouts/dashboard.base.html' %}
 {% block style %}
 {{ super() }}
-<link rel="stylesheet" href="{{ url_for('static', filename='vendor/datatables/css/datatables.bootstrap4.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-table/bootstrap-table.min.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='vendor/froala-editor/css/froala_editor.pkgd.min.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='vendor/froala-editor/css/froala_style.min.css') }}">
 {% endblock %}
@@ -14,7 +14,7 @@
     {% block title %}My Tickets{% endblock %}
 {% endblock %}
 {% block text %}
-    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+    List of all the tickets you've created and are responsible for.
 {% endblock %}
 
 {% block button %}
@@ -29,24 +29,44 @@
 </div>
 
 <div class="content-box mb-3 content-lighten max-w-1000">
-    <table id="ticketTable" class="table table-striped table-borderless table-responsive-sm">
+    <table
+        id="ticketTable"
+        class="table table-striped table-responsive-sm"
+        
+        data-toggle="table"
+        data-search="true"
+        
+        data-pagination="true"
+        data-page-list="[10, 25, 50, 75]"
+        
+        data-show-columns="true"
+        data-show-toggle="true"
+        data-search-highlight="true"
+
+        data-filter-control="true"
+        data-buttons-class="dark"
+        >
         <thead>
-            <tr>
-                <th>#</th>
-                <th>Subject</th>
-                <th>Author</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Date Created</th>
+            <tr class="tr-class-1">
+                <th data-field="number" rowspan="2" data-valign="middle" data-halign="center">ID</th>
+                <th colspan="4">Ticket information</th>
+            </tr>
+            <tr class="tr-class-2">
+                <th data-field="subject" data-valign="middle">Subject</th>
+                <th data-field="author" data-valign="middle" data-width="150">Author name</th>
+                <th data-field="priority" data-filter-control="select" data-card-visible="false">
+                    Priority
+                </th>
+                <th data-field="status" data-filter-control="select" data-card-visible="false">
+                    Status
+                </th>
             </tr>
         </thead>
         <tbody>
             {% for row in tickets %}
-            <tr>
-                <td>
-                    <a href="{{ url_for('admin.view_ticket', id=row.id) }}" title="View full details">
-                        {{ row.number }}
-                    </a>
+            <tr id="tr-id-{{ row.id }}" class="tr-class-{{ row.id }}" data-title="{{ row.number }}" data-object='{"key": "value"}'>
+                <td id="td-id-{{ row.id }}" class="td-class-{{ row.id }}" data-title="{{ row.number }}">
+                    <a href="{{ url_for('admin.view_ticket', id=row.id) }}">{{ row.number }}</a>
                 </td>
                 <td>
                     {% if row.subject|length > 64 %}
@@ -58,7 +78,6 @@
                 <td>{{ row.author.name }}</td>
                 <td>{{ row.priority.priority }}</td>
                 <td>{{ row.status.status }}</td>
-                <td>{{ row.created_at.strftime('%m-%d-%Y, %H:%M') }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -108,8 +127,8 @@
 {% endblock %}
 {% block script %}
 {{ super() }}
-<script src="{{ url_for('static', filename='vendor/datatables/js/jquery.datatables.min.js') }}"></script>
-<script src="{{ url_for('static', filename='vendor/datatables/js/datatables.bootstrap4.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/bootstrap-table/bootstrap-table.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/bootstrap-table/extensions/filter-control/bootstrap-table-filter-control.min.js') }}"></script>
 <script src="{{ url_for('static', filename='vendor/froala-editor/js/froala_editor.pkgd.min.js') }}"></script>
 <script>
     $(document).ready(function() {
@@ -124,7 +143,7 @@
             $(this).next('.custom-file-label').html(fileName);
         });
 
-        $('#ticketTable').DataTable({'ordering': false});
+        $('#ticketTable').bootstrapTable();
 
         maxFileSize = 4 * 1024 * 1024
         $('#attachment').change(function() {
