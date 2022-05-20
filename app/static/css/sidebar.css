@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;700&display=swap");
 
 /*!
  * Sidebar menu for Bootstrap 4
@@ -544,4 +544,27 @@ body {
 .custom-select.is-invalid,
 .was-validated .custom-select:invalid {
   background-image: none !important;
+}
+
+/* Bootstrap-table */
+.bootstrap-table-filter-control-priority {
+  width: 90% !important;
+  margin-right: 5%;
+  margin-left: 5%;
+  margin-bottom: 10px;
+}
+
+.bootstrap-table-filter-control-status {
+  width: 90% !important;
+  margin-right: 5%;
+  margin-left: 5%;
+  margin-bottom: 10px;
+}
+
+.table-bordered thead th {
+  border-bottom-width: 0 !important;
+}
+
+.table thead th {
+  border-bottom: 0px solid #dee2e6;
 }
