@@ -38,10 +38,16 @@ def dashboard():
 	
 	return render_template('customer/dashboard.html', open=open, solved=solved, pending=pending, closed=closed)
 
-@customer_blueprint.route('/my-tickets', methods=['GET', 'POST'])
+@customer_blueprint.route('/my-tickets', methods=['GET'])
 @login_required(role='Customer')
 def my_tickets():
 	tickets = Ticket.query.filter(Ticket.author_id==current_user.id).order_by(desc(Ticket.created_at)).all()
+	form = TicketForm()
+	return render_template('customer/my_tickets.html', form=form, tickets=tickets)
+
+@customer_blueprint.route('/create-ticket', methods=['GET', 'POST'])
+@login_required(role='Customer')
+def create_ticket():
 	form = TicketForm()
 	if form.validate_on_submit():
 		number = random_numbers()
@@ -73,7 +79,6 @@ def my_tickets():
 		db.session.commit()
 		flash('Ticket has been created.', 'primary')
 		return redirect(url_for('customer.my_tickets'))
-	return render_template('customer/my_tickets.html', form=form, tickets=tickets)
 
 @customer_blueprint.route('/view-ticket/<int:id>', methods=['GET'])
 @login_required(role='Customer')
