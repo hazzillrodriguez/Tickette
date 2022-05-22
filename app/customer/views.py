@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, render_template as _render, send_file, redirect, request, url_for, flash
 from flask_login import current_user
 
-from app.admin.forms import TicketForm, CommentForm, ChangeProfileForm, ChangePasswordForm
+from app.customer.forms import TicketForm, UpdateTicketForm, CommentForm, ChangeProfileForm, ChangePasswordForm
 from app.models import User, Ticket, Comment, Notification
 
 from app.utils.generate_digits import random_numbers
@@ -80,17 +80,26 @@ def create_ticket():
 		flash('Ticket has been created.', 'primary')
 		return redirect(url_for('customer.my_tickets'))
 
-@customer_blueprint.route('/view-ticket/<int:id>', methods=['GET'])
+@customer_blueprint.route('/view-ticket/<int:id>', methods=['GET', 'POST'])
 @login_required(role='Customer')
 def view_ticket(id):
 	ticket = Ticket.query.filter(Ticket.author_id==current_user.id).filter_by(id=id).first()
 	comments = Comment.query.filter(Comment.ticket_id==id).all()
 	
-	if ticket is None:
+	if not ticket:
 		return redirect(url_for('customer.my_tickets'))
 	
+	form = UpdateTicketForm(category=ticket.category_id)
 	comment_form = CommentForm()
-	return render_template('customer/view_ticket.html', comment_form=comment_form, ticket=ticket, comments=comments)
+	if form.validate_on_submit():
+		if ticket.category_id != int(form.category.data) and ticket.owner_id is not None:
+			Notification.send_notification(message='updated category on ticket', receiver_id=ticket.owner_id, sender_id=current_user.id, ticket_id=ticket.id, seen=False)
+		ticket.category_id = form.category.data
+
+		db.session.commit()
+		flash('Ticket has been updated.', 'primary')
+		return redirect(url_for('customer.view_ticket', id=id))
+	return render_template('customer/view_ticket.html', form=form, comment_form=comment_form, ticket=ticket, comments=comments)
 
 @customer_blueprint.route('/comment-ticket/<int:id>', methods=['GET', 'POST'])
 @login_required(role='Customer')

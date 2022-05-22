@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, render_template as _render, send_file, redirect, request, url_for, flash
 from flask_login import current_user
 
-from app.admin.forms import TicketForm, UpdateTicketForm, CommentForm, CategoryForm, PriorityForm, ChangeProfileForm, ChangePasswordForm
+from app.agent.forms import TicketForm, UpdateTicketForm, CommentForm, CategoryForm, PriorityForm, ChangeProfileForm, ChangePasswordForm
 from app.models import User, Ticket, Category, Priority, Status, Comment, Notification
 
 from app.utils.generate_digits import random_numbers
