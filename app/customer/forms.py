@@ -22,6 +22,15 @@ class TicketForm(FlaskForm):
 		super(TicketForm, self).__init__(*args, **kwargs)
 		self.category.choices = [('', '-- Please select category --')]+[(category.id, category.category) for category in Category.query.all()]
 
+class UpdateTicketForm(FlaskForm):
+	category = SelectField('Category',
+		validators=[DataRequired()])
+
+	def __init__(self, *args, **kwargs):
+		super(UpdateTicketForm, self).__init__(*args, **kwargs)
+		self.category.choices = [('', '-- Please select category --')]+[(category.id, category.category)
+			for category in Category.query.all()]
+
 class CommentForm(FlaskForm):
 	comment = TextAreaField('Comment',
 		validators=[DataRequired()])

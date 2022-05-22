@@ -30,7 +30,8 @@
 <div class="content-box mb-3 content-lighten max-w-1000">
     <table class="table table-striped table-borderless">
         <tbody>
-            <form>
+            <form action="{{ url_for('customer.view_ticket', id=ticket.id) }}" method="POST">
+                {{ form.csrf_token }}
                 <tr>
                     <td>Date Created</td>
                     <td>{{ ticket.created_at.strftime('%d %b %Y, %H:%M %p') }}</td>
@@ -65,7 +66,13 @@
                 </tr>
                 <tr>
                     <td>Category</td>
-                    <td>{{ ticket.category.category }}</td>
+                    <td>
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                {{ render_select(form.category, "Category is required") }}
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td>Priority</td>
@@ -88,6 +95,7 @@
                 <tr>
                     <td></td>
                     <td>
+                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
                         <a href="{{ url_for('customer.my_tickets') }}" class="btn btn-secondary btn-sm">
                             Back
                         </a>

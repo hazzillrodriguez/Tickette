@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, render_template as _render, send_file, redirect, request, url_for, flash
 from flask_login import current_user
 
-from app.admin.forms import TicketForm, UpdateTicketForm, CommentForm, CategoryForm, PriorityForm, ChangeProfileForm, ChangePasswordForm
+from app.agent.forms import TicketForm, UpdateTicketForm, CommentForm, CategoryForm, PriorityForm, ChangeProfileForm, ChangePasswordForm
 from app.models import User, Ticket, Category, Priority, Status, Comment, Notification
 
 from app.utils.generate_digits import random_numbers
@@ -39,47 +39,23 @@ def dashboard():
 	
 	return render_template('agent/dashboard.html', open=open, solved=solved, pending=pending, closed=closed)
 
-@agent_blueprint.route('/my-tickets', methods=['GET', 'POST'])
+@agent_blueprint.route('/my-tickets', methods=['GET'])
 @login_required(role='Agent')
 def my_tickets():
 	tickets = Ticket.query.filter(or_(Ticket.author_id==current_user.id, Ticket.owner_id==current_user.id)).order_by(desc(Ticket.created_at)).all()
 	form = TicketForm()
-	if form.validate_on_submit():
-		number = random_numbers()
-		priority = 1 # Low priority
-		status = 1 # Open status
-
-		id = current_user.id
-		file = form.attachment.data
-		if file is not None:
-			FOLDER_ID = os.path.join(path, 'app/static/uploads/attachments/' + str(id))
-			# Recursively create the paths, if the preceding path doesn't exist
-			if not os.path.exists(FOLDER_ID):
-				os.makedirs(FOLDER_ID)
-
-			original_f = file.filename
-			# Rename the uploaded file
-			filename, ext = os.path.splitext(original_f)
-			filename = uuid.uuid4().hex
-			attachment = secure_filename(str(filename + ext))
-			# then save it to the designated folder
-			file.save(os.path.join(FOLDER_ID, attachment))
-		else:
-			attachment = None
-			original_f = None
-
-		ticket = Ticket(number=number, subject=form.subject.data, body=form.body.data, author_id=current_user.id, owner_id=None, category_id=int(form.category.data), priority_id=priority, status_id=status, orig_file=original_f, file_link=attachment)
-		
-		db.session.add(ticket)
-		db.session.commit()
-		flash('Ticket has been created.', 'primary')
-		return redirect(url_for('agent.my_tickets'))
 	return render_template('agent/my_tickets.html', form=form, tickets=tickets)
 
-@agent_blueprint.route('/new-tickets', methods=['GET', 'POST'])
+@agent_blueprint.route('/new-tickets', methods=['GET'])
 @login_required(role='Agent')
 def new_tickets():
 	tickets = Ticket.query.order_by(desc(Ticket.created_at)).all()
+	form = TicketForm()
+	return render_template('agent/new_tickets.html', form=form, tickets=tickets)
+
+@agent_blueprint.route('/create-ticket', methods=['GET', 'POST'])
+@login_required(role='Agent')
+def create_ticket():
 	form = TicketForm()
 	if form.validate_on_submit():
 		number = random_numbers()
@@ -111,7 +87,6 @@ def new_tickets():
 		db.session.commit()
 		flash('Ticket has been created.', 'primary')
 		return redirect(url_for('agent.new_tickets'))
-	return render_template('agent/new_tickets.html', form=form, tickets=tickets)
 
 @agent_blueprint.route('/view-ticket/<int:id>', methods=['GET', 'POST'])
 @login_required(role='Agent')
