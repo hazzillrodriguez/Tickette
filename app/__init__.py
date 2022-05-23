@@ -33,6 +33,10 @@ def create_app():
 	app.register_blueprint(agent_blueprint, url_prefix='/agent')
 	app.register_blueprint(customer_blueprint, url_prefix='/customer')
 
+	@app.route('/')
+	def home():
+		return redirect(url_for('auth.login'))
+
 	@app.cli.command('test')
 	def test():
 		"""Runs the unit tests."""
