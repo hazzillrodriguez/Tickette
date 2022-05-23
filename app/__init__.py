@@ -4,6 +4,10 @@ from flask_migrate import Migrate
 from app.exts import db, login_manager, mail, csrf
 from app.models import User, Ticket, Category, Priority, Status, Comment, Notification
 
+import unittest
+import coverage
+import os
+
 def create_app():
 	app = Flask(__name__)
 	# Configuration
@@ -28,6 +32,35 @@ def create_app():
 	app.register_blueprint(admin_blueprint, url_prefix='/admin')
 	app.register_blueprint(agent_blueprint, url_prefix='/agent')
 	app.register_blueprint(customer_blueprint, url_prefix='/customer')
+
+	@app.route('/')
+	def home():
+		return redirect(url_for('auth.login'))
+
+	@app.cli.command('test')
+	def test():
+		"""Runs the unit tests."""
+		tests = unittest.TestLoader().discover('.')
+		unittest.TextTestRunner(verbosity=2).run(tests)
+
+	@app.cli.command('cov')
+	def cov():
+		"""Runs the unit tests with coverage."""
+		cov = coverage.coverage(
+			branch=True,
+			include='app/*'
+		)
+		cov.start()
+		tests = unittest.TestLoader().discover('.')
+		unittest.TextTestRunner(verbosity=2).run(tests)
+		cov.stop()
+		cov.save()
+		print('Coverage Summary:')
+		cov.report()
+		basedir = os.path.abspath(os.path.dirname(__file__))
+		covdir = os.path.join(basedir, 'coverage')
+		cov.html_report(directory=covdir)
+		cov.erase()
 
 	@app.shell_context_processor
 	def make_shell_context():
