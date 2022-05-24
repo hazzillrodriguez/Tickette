@@ -1,6 +1,7 @@
 # Tickette
 
 [![Actions Status](https://github.com/hazzillrodriguez/Tickette/workflows/Run%20Tests/badge.svg)](https://github.com/hazzillrodriguez/Tickette/actions)
+![Python](https://img.shields.io/badge/python-v3.6+-blue.svg)
 
 Tickette is a support ticketing system that handles customer inquiries. It also provides all of the contexts you need to resolve issues and allows you to categorize, prioritize, and assign customer tickets.
 
