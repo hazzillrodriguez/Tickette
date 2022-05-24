@@ -16,7 +16,7 @@ body.my-login-page {
 
 .my-login-page .brand {
   width: 90px;
-  height: 90px;
+  height: auto;
   overflow: hidden;
   border-radius: 50%;
   margin: 40px auto;
