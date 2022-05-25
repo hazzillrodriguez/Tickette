@@ -46,7 +46,7 @@ flask run
 
 After that, navigate to `http://localhost:5000/login` in your browser to see the application. Log in using these credentials to access the admin, agent, and client areas.
 
-### User Credentials
+### Login with user credentials
 
 Administrator
     
@@ -76,6 +76,14 @@ To run all the tests at once, use the command:
 ```
 python -m pytest -v
 ```
+
+## Demonstrations
+
+Login and sign up
+![Login and Sign up](demo/login-and-signup.gif)
+
+Create, update, comment, and delete ticket
+![Ticket CRUD](demo/ticket.gif)
 
 ## License
 
